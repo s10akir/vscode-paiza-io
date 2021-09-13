@@ -31,7 +31,9 @@ export namespace PaizaIO {
 
     // run start
     stdoutOutputChannel.show();
-    stdoutOutputChannel.append('[INFO] Running on paiza.IO ');
+    stdoutOutputChannel.appendLine('-------------------------');
+    stdoutOutputChannel.appendLine('');
+    stdoutOutputChannel.append(`[INFO] Running on paiza.IO [language: ${language}]`);
 
     const runner = await nodePaizaIO.createRunner({
       sourceCode,
@@ -45,10 +47,10 @@ export namespace PaizaIO {
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
     stdoutOutputChannel.appendLine('');
+    stdoutOutputChannel.appendLine('');
 
     const details = await runner.getDetails();
     await showDetails(details);
-    stdoutOutputChannel.appendLine('');
   }
 
   /**
