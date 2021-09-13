@@ -47,7 +47,8 @@ export namespace PaizaIO {
     stdoutOutputChannel.appendLine('');
 
     const details = await runner.getDetails();
-    showDetails(details);
+    await showDetails(details);
+    stdoutOutputChannel.appendLine('');
   }
 
   /**
@@ -81,7 +82,33 @@ export namespace PaizaIO {
     return textDocument.getText();
   }
 
-  function showDetails(details: RunnerDetail) {
+  async function fetchOutput(): Promise<string | undefined> {
+    const workspace = vscode.workspace;
+    const inputFileUrls = await workspace.findFiles('paizaIO.out');
+    if (inputFileUrls.length === 0) {
+      return undefined;
+    }
+
+    const textDocument = await workspace.openTextDocument(inputFileUrls[0]);
+    return textDocument.getText();
+  }
+
+  async function diffJudge(stdout: string) {
+    const output = await fetchOutput();
+    if(!output) {
+      return;
+    }
+
+    if (stdout === output) {
+      stdoutOutputChannel.appendLine('[INFO] diff judge: AC');
+    } else {
+      stdoutOutputChannel.appendLine('[INFO] diff judge: WA');
+    }
+
+    stderrOutputChannel.appendLine('');
+  }
+
+  async function showDetails(details: RunnerDetail) {
     detailsOutputChannel.appendLine(JSON.stringify(details, null, 2));
 
     // logging output
@@ -125,7 +152,11 @@ export namespace PaizaIO {
 
         stderrOutputChannel.appendLine('');
       }
+
+      return;
     };
+
+    await diffJudge(details.stdout);
   }
 }
 
