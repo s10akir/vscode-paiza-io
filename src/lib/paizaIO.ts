@@ -17,7 +17,7 @@ export namespace PaizaIO {
     }
 
     const sourceCode = fetchSourceCode();
-    const input = fetchInput();
+    const input = await fetchInput();
     const editorLanguage = fetchLanguage();
     const language = comparePaizaIoLanguage(editorLanguage);
 
@@ -70,10 +70,15 @@ export namespace PaizaIO {
     return textEditor?.document.getText() || '';
   }
 
-  function fetchInput(): string | undefined {
-    const input = 'World';
+  async function fetchInput(): Promise<string | undefined> {
+    const workspace = vscode.workspace;
+    const inputFileUrls = await workspace.findFiles('paizaIO.in');
+    if (inputFileUrls.length === 0) {
+      return undefined;
+    }
 
-    return input;
+    const textDocument = await workspace.openTextDocument(inputFileUrls[0]);
+    return textDocument.getText();
   }
 
   function showDetails(details: RunnerDetail) {
